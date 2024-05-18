@@ -34,6 +34,7 @@ enum Action {
     Complete,
     Cancel,
     Status,
+    Balance,
 }
 
 fn main() -> Result<()> {
@@ -64,7 +65,19 @@ fn main() -> Result<()> {
         Action::Complete => complete(&settings)?,
         Action::Cancel => cancel(&settings)?,
         Action::Status => status(&settings)?,
+        Action::Balance => balance(&settings)?,
     }
+    Ok(())
+}
+
+fn balance(settings: &Settings) -> Result<()> {
+    let client = Wallet::create_rpc_client(settings, Some("miner"));
+    let balance = client.get_balance(None, None)?;
+    info!("Miner wallet balance: {}", balance);
+    let client = Wallet::create_rpc_client(settings, Some("fee_payment"));
+    let balance = client.get_balance(None, None)?;
+    info!("Fee paying wallet balance: {}", balance);
+
     Ok(())
 }
 
